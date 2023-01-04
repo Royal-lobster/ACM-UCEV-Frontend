@@ -15,52 +15,91 @@ export const getStaticProps = async () => {
     cache: new InMemoryCache(),
   });
 
-  const { data } = await client.query({
+  const { data, error } = await client.query({
     query: gql`
       {
         homepageAlbum {
-          photos {
-            url
-          }
-        }
-        posts(sort: "created_at:desc", limit: 5) {
-          id
-          Title
-          Slug
-          created_at
-          updated_at
-          Description
-          authors {
-            id
-            Author_name
-            Author_image {
-              url
+          data {
+            attributes {
+              photos {
+                data {
+                  attributes {
+                    url
+                  }
+                }
+              }
             }
           }
-          tags {
-            id
-            Tag_name
-          }
-          Cover_image {
-            url
-          }
-          Mini_description
         }
-        events(sort: "Start_time:asc") {
-          id
-          created_at
-          Event_name
-          Start_time
-          End_time
-          Mini_description
-          event_tags {
-            Tag_name
+        posts(sort: "created_at:desc", pagination: { limit: 5, page: 0 }) {
+          data {
+            id
+            attributes {
+              Title
+              Slug
+              createdAt
+              updatedAt
+              Description
+              authors {
+                data {
+                  id
+                  attributes {
+                    Author_name
+                    Author_image {
+                      data {
+                        attributes {
+                          url
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              tags {
+                data {
+                  attributes {
+                    Tag_name
+                  }
+                }
+              }
+              Cover_image {
+                data {
+                  attributes {
+                    url
+                  }
+                }
+              }
+              Mini_description
+            }
           }
-          Slug
+        }
+
+        events(sort: "Start_time:asc") {
+          data {
+            id
+            attributes {
+              createdAt
+              Event_name
+              Start_time
+              End_time
+              Mini_description
+              event_tags {
+                data {
+                  attributes {
+                    Tag_name
+                  }
+                }
+              }
+              Slug
+            }
+          }
         }
       }
     `,
   });
+
+  console.log({ data, error });
+
   return {
     props: {
       eventsOverview: data.events,
