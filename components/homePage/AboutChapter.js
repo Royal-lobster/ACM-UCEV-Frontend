@@ -1,27 +1,25 @@
 import React from "react";
 import { Galleria } from "primereact/galleria";
 import Image from "next/image";
+
 function aboutChapter({ photos }) {
-  let itemTemplate = (item) => {
-    return (
-      <Image
-        src={item?.url}
-        alt="photo"
-        objectFit="cover"
-        className="aboutChapter__galleryImage"
-        layout="fill"
-      />
-    );
-  };
   return (
     <>
       <div className="aboutChapter">
         <div className="aboutChapter__gallery">
           <Galleria
-            value={photos.photos}
+            value={photos}
             showItemNavigators
             showThumbnails={false}
-            item={itemTemplate}
+            item={(item) => (
+              <Image
+                src={item?.attributes.url}
+                alt="photo"
+                objectFit="cover"
+                className="aboutChapter__galleryImage"
+                layout="fill"
+              />
+            )}
             numVisible={5}
             circular
             autoPlay

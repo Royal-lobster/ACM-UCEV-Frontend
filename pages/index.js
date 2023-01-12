@@ -13,6 +13,9 @@ export const getStaticProps = async () => {
   const client = new ApolloClient({
     uri: process.env.BACKEND_GRAPHQL_ENDPOINT,
     cache: new InMemoryCache(),
+    headers: {
+      Authorization: process.env.BACKEND_GRAPHQL_AUTHORIZATION_KEY,
+    },
   });
 
   const { data, error } = await client.query({
@@ -31,7 +34,7 @@ export const getStaticProps = async () => {
             }
           }
         }
-        posts(sort: "created_at:desc", pagination: { limit: 5, page: 0 }) {
+        posts(sort: "createdAt:desc", pagination: { pageSize: 5, page: 0 }) {
           data {
             id
             attributes {
@@ -95,40 +98,8 @@ export const getStaticProps = async () => {
           }
         }
       }
-    }
-    data {
-      attributes {
-        Mini_description
-      }
-    }
-  }
-        events(sort: "Start_time:asc") {
-    data {
-      attributes {
-        Event_name
-      }
-    }
-    data {
-      attributes {
-        Start_time
-      }
-    }
-    data {
-      attributes {
-        Slug
-      }
-    }
-    data {
-      attributes {
-        End_time
-      }
-    }
-  }
-      }
     `,
   });
-
-  console.log({ data, error });
 
   return {
     props: {
@@ -150,7 +121,7 @@ function Home({
       <Layout APPLICATION_URL={APPLICATION_URL}>
         <Hero />
         <div className="home__container">
-          <AboutChapter photos={homepageAlbum} />
+          <AboutChapter photos={homepageAlbum.data.attributes.photos.data} />
           <div className="home__about">
             <AboutACM />
             <AboutJNTUV />
@@ -164,11 +135,11 @@ function Home({
               loading="lazy"
             />
           </div>
-          {eventsOverview.filter(
+          {eventsOverview.data.filter(
             (event) => Date.now() < new Date(event.Start_time)
           ).length != 0 && <UpcommingEvents events={eventsOverview} />}
           <SubscribeNewsLetter />
-          <LatestBlogPosts data={postsOverview} />
+          <LatestBlogPosts data={postsOverview.data} />
         </div>
       </Layout>
       <style jsx>{`

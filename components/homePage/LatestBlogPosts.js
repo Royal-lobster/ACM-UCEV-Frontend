@@ -13,15 +13,15 @@ function LatestBlogPosts({ data }) {
           {data.map((post, index) => (
             <PostResultCardSmall
               key={post.id}
-              slug={post.Slug}
-              title={post.Title}
-              cover_image={post.Cover_image.url}
-              content={post.Description}
-              mini_description={post.Mini_description}
-              authors={post.authors}
-              post_tags={post.tags}
-              created_at={post.created_at}
-              updated_at={post.updated_at}
+              slug={post.attributes.Slug}
+              title={post.attributes.Title}
+              cover_image={post.attributes.Cover_image.data.attributes.url}
+              content={post.attributes.Description}
+              mini_description={post.attributes.Mini_description}
+              authors={post.attributes.authors}
+              post_tags={post.attributes.tags}
+              created_at={post.attributes.createdAt}
+              updated_at={post.attributes.updatedAt}
             />
           ))}
         </div>

@@ -17,6 +17,7 @@ function PostResultCardSmall({
   updated_at,
 }) {
   const router = useRouter();
+  console.log({ cover_image });
   return (
     <>
       <div className="postResultCardSmall">
@@ -33,11 +34,11 @@ function PostResultCardSmall({
         </div>
         <div className="postResultCardSmall__content">
           <div className="postResultCardSmall_tagsContainer">
-            {post_tags.map((tag) => (
+            {post_tags.data.map((tag) => (
               <Chip
                 className="postResultCardSmall_tag"
-                key={tag.id}
-                label={tag.Tag_name}
+                key={tag.attributes.id}
+                label={tag.attributes.Tag_name}
               />
             ))}
           </div>
@@ -47,17 +48,17 @@ function PostResultCardSmall({
             </Link>
           </h2>
           <div className="postResultCardSmall_authorsContainer">
-            {authors.map((author) => (
+            {authors.data.map((author) => (
               <div className="postResultCardSmall__authorChip" key={author.id}>
                 <Image
-                  src={author.Author_image.url}
-                  alt={author.Author_name}
+                  src={author.attributes.Author_image.data.attributes.url}
+                  alt={author.attributes.Author_name}
                   className="postResultCardSmall__authorImg"
                   width={30}
                   height={30}
                 />
                 <div className="postResultCardSmall__authorName">
-                  {author.Author_name}
+                  {author.attributes.Author_name}
                 </div>
               </div>
             ))}
