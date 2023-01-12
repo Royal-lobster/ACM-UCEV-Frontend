@@ -95,6 +95,36 @@ export const getStaticProps = async () => {
           }
         }
       }
+    }
+    data {
+      attributes {
+        Mini_description
+      }
+    }
+  }
+        events(sort: "Start_time:asc") {
+    data {
+      attributes {
+        Event_name
+      }
+    }
+    data {
+      attributes {
+        Start_time
+      }
+    }
+    data {
+      attributes {
+        Slug
+      }
+    }
+    data {
+      attributes {
+        End_time
+      }
+    }
+  }
+      }
     `,
   });
 
