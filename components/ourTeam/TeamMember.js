@@ -10,12 +10,13 @@ function TeamMember({
   memberAbout,
   memberSocial,
 }) {
+  console.log(memberImage);
   return (
     <>
       <div className="teamMember">
         <div className="teamMember__info">
           <div className="teamMember__image">
-            <Image src={memberImage[0].url} layout="fill" objectFit="cover" />
+            <Image src={memberImage} layout="fill" objectFit="cover" />
           </div>
           <div className="teamMember__name">
             <h3>{memberName}</h3>

@@ -20,7 +20,9 @@ export const transformToOldData = (newData) => {
   };
   const convertNestedObjArrays = (obj) => {
     if (!obj || typeof obj !== "object") return obj;
-    const values = Object.values(obj);
+    const values = Object.entries(obj)
+      .map(([k, v]) => (k === "__typename" ? null : v))
+      .filter((v) => v !== null);
     const keys = Object.keys(obj);
     if (keys.every((k, i) => k === "__typename" || k === i.toString()))
       return values.map(convertNestedObjArrays);

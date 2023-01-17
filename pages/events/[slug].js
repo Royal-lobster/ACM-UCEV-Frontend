@@ -61,11 +61,9 @@ export const getStaticPaths = async () => {
 
   data = transformToOldData(data);
 
-  const paths = data.events
-    .map((event) => ({
-      params: { slug: event.Slug },
-    }))
-    .filter((e) => Boolean(e.params.slug));
+  const paths = data.events.map((event) => ({
+    params: { slug: event.Slug },
+  }));
 
   return {
     paths,

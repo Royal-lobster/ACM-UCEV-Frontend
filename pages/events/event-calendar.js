@@ -7,6 +7,7 @@ import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay";
 import Layout from "../../components/layout/Layout";
 import { useRouter } from "next/router";
+import { transformToOldData } from "../../utils/transformData";
 const locales = {
   "en-US": require("date-fns/locale/en-US"),
 };
@@ -22,19 +23,28 @@ export const getStaticProps = async () => {
   const client = new ApolloClient({
     uri: process.env.BACKEND_GRAPHQL_ENDPOINT,
     cache: new InMemoryCache(),
+    headers: {
+      Authorization: process.env.BACKEND_GRAPHQL_AUTHORIZATION_KEY,
+    },
   });
-  const { data } = await client.query({
+  let { data } = await client.query({
     query: gql`
       {
         events(sort: "Start_time:asc") {
-          Event_name
-          Start_time
-          Slug
-          End_time
+          data {
+            attributes {
+              Event_name
+              Start_time
+              Slug
+              End_time
+            }
+          }
         }
       }
     `,
   });
+  data = transformToOldData(data);
+
   let allEvents = [];
   data.events.map((event) => {
     allEvents.push({
@@ -44,6 +54,7 @@ export const getStaticProps = async () => {
       end: event.End_time,
     });
   });
+
   return {
     props: {
       events: allEvents,

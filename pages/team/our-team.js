@@ -3,29 +3,42 @@ import Layout from "../../components/layout/Layout";
 import Image from "next/image";
 import TeamMember from "../../components/ourTeam/TeamMember";
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
+import { transformToOldData } from "../../utils/transformData";
 export const getStaticProps = async () => {
   const client = new ApolloClient({
     uri: process.env.BACKEND_GRAPHQL_ENDPOINT,
     cache: new InMemoryCache(),
+    headers: {
+      Authorization: process.env.BACKEND_GRAPHQL_AUTHORIZATION_KEY,
+    },
   });
-  const { data } = await client.query({
+  let { data } = await client.query({
     query: gql`
       {
         ourTeams {
-          Member_name
-          Member_position
-          Member_image {
-            url
-          }
-          About_member
-          Social_links {
-            Name_of_social
-            Social_url
+          data {
+            attributes {
+              Member_name
+              Member_position
+              Member_image {
+                data {
+                  attributes {
+                    url
+                  }
+                }
+              }
+              About_member
+              Social_links {
+                Name_of_social
+                Social_url
+              }
+            }
           }
         }
       }
     `,
   });
+  data = transformToOldData(data);
   return {
     props: {
       teamMembers: data.ourTeams,
@@ -70,25 +83,27 @@ function ourTeam({ teamMembers, APPLICATION_URL }) {
             </div>
           </div>
           <div className="ourTeam__allMembers">
-            {teamMembers.map((member, index) => {
-              return (
-                <TeamMember
-                  key={index}
-                  memberPositionColor={
-                    paleColors[
-                      index <= paleColors.length
-                        ? index
-                        : index % paleColors.length
-                    ]
-                  }
-                  memberName={member.Member_name}
-                  memberPosition={member.Member_position}
-                  memberImage={member.Member_image}
-                  memberAbout={member.About_member}
-                  memberSocial={member.Social_links}
-                />
-              );
-            })}
+            {teamMembers
+              .filter((m) => m.Member_image[0]?.url)
+              .map((member, index) => {
+                return (
+                  <TeamMember
+                    key={index}
+                    memberPositionColor={
+                      paleColors[
+                        index <= paleColors.length
+                          ? index
+                          : index % paleColors.length
+                      ]
+                    }
+                    memberName={member.Member_name}
+                    memberPosition={member.Member_position}
+                    memberImage={member.Member_image[0]?.url}
+                    memberAbout={member.About_member}
+                    memberSocial={member.Social_links}
+                  />
+                );
+              })}
           </div>
         </div>
       </Layout>
