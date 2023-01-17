@@ -13,8 +13,8 @@ function PostResultCardSmall({
   content,
   authors,
   post_tags,
-  created_at,
-  updated_at,
+  createdAt,
+  updatedAt,
 }) {
   const router = useRouter();
   return (
@@ -33,11 +33,11 @@ function PostResultCardSmall({
         </div>
         <div className="postResultCardSmall__content">
           <div className="postResultCardSmall_tagsContainer">
-            {post_tags.map((tag) => (
+            {post_tags.data.map((tag) => (
               <Chip
                 className="postResultCardSmall_tag"
-                key={tag.id}
-                label={tag.Tag_name}
+                key={tag.attributes.id}
+                label={tag.attributes.Tag_name}
               />
             ))}
           </div>
@@ -47,30 +47,30 @@ function PostResultCardSmall({
             </Link>
           </h2>
           <div className="postResultCardSmall_authorsContainer">
-            {authors.map((author) => (
+            {authors.data.map((author) => (
               <div className="postResultCardSmall__authorChip" key={author.id}>
                 <Image
-                  src={author.Author_image.url}
-                  alt={author.Author_name}
+                  src={author.attributes.Author_image.data.attributes.url}
+                  alt={author.attributes.Author_name}
                   className="postResultCardSmall__authorImg"
                   width={30}
                   height={30}
                 />
                 <div className="postResultCardSmall__authorName">
-                  {author.Author_name}
+                  {author.attributes.Author_name}
                 </div>
               </div>
             ))}
           </div>
           <div className="postResultCardSmall_dateContainer">
-            {created_at == updated_at ? (
+            {createdAt == updatedAt ? (
               <span className="postResultCardSmall_date">
-                {format(new Date(created_at), "MMM dd, yyyy")}
+                {format(new Date(createdAt), "MMM dd, yyyy")}
               </span>
             ) : (
               <span className="postResultCardSmall_date">
                 {" "}
-                Updated {format(new Date(updated_at), "MMM dd, yyyy")}
+                Updated {format(new Date(updatedAt), "MMM dd, yyyy")}
               </span>
             )}{" "}
             · ~{readingTime(content)} min read

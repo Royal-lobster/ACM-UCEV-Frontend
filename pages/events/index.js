@@ -7,30 +7,45 @@ import Fuse from "fuse.js";
 import Layout from "../../components/layout/Layout";
 import EventResultCard from "../../components/eventsPage/EventResultCard";
 import NoEventsFound from "../../components/eventsPage/NoEventsFound";
+import { transformToOldData } from "../../utils/transformData";
 
 export const getStaticProps = async () => {
   const client = new ApolloClient({
     uri: process.env.BACKEND_GRAPHQL_ENDPOINT,
     cache: new InMemoryCache(),
+    headers: {
+      Authorization: process.env.BACKEND_GRAPHQL_AUTHORIZATION_KEY,
+    },
   });
-  const { data } = await client.query({
+  let { data } = await client.query({
     query: gql`
       {
         events(sort: "Start_time:asc") {
-          id
-          created_at
-          Event_name
-          Start_time
-          End_time
-          Mini_description
-          event_tags {
-            Tag_name
+          data {
+            id
+            attributes {
+              createdAt
+              Event_name
+              Start_time
+              End_time
+              Mini_description
+              event_tags {
+                data {
+                  attributes {
+                    Tag_name
+                  }
+                }
+              }
+              Slug
+            }
           }
-          Slug
         }
       }
     `,
   });
+
+  data = transformToOldData(data);
+
   let updatedData = [];
   data.events.map((event) => {
     if (Date.now() < new Date(event.Start_time)) {

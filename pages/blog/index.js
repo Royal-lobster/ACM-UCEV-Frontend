@@ -2,41 +2,66 @@ import React from "react";
 import Layout from "../../components/layout/Layout";
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import PostResultCard from "../../components/postsPage/PostResultCard";
+import { transformToOldData } from "../../utils/transformData";
 
 export const getStaticProps = async () => {
   const client = new ApolloClient({
     uri: process.env.BACKEND_GRAPHQL_ENDPOINT,
     cache: new InMemoryCache(),
+    headers: {
+      Authorization: process.env.BACKEND_GRAPHQL_AUTHORIZATION_KEY,
+    },
   });
-  const { data } = await client.query({
+  let { data } = await client.query({
     query: gql`
       {
-        posts(sort: "created_at:desc") {
-          id
-          Title
-          Slug
-          created_at
-          updated_at
-          Description
-          authors {
+        posts(sort: "createdAt:desc") {
+          data {
             id
-            Author_name
-            Author_image {
-              url
+            attributes {
+              Title
+              Slug
+              createdAt
+              updatedAt
+              Description
+              authors {
+                data {
+                  id
+                  attributes {
+                    Author_name
+                    Author_image {
+                      data {
+                        attributes {
+                          url
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              tags {
+                data {
+                  id
+                  attributes {
+                    Tag_name
+                  }
+                }
+              }
+              Cover_image {
+                data {
+                  attributes {
+                    url
+                  }
+                }
+              }
+              Mini_description
             }
           }
-          tags {
-            id
-            Tag_name
-          }
-          Cover_image {
-            url
-          }
-          Mini_description
         }
       }
     `,
   });
+  data = transformToOldData(data);
   return {
     props: {
       postsOverview: data.posts,
@@ -72,8 +97,8 @@ function blogIndex({ postsOverview, APPLICATION_URL }) {
               mini_description={post.Mini_description}
               authors={post.authors}
               post_tags={post.tags}
-              created_at={post.created_at}
-              updated_at={post.updated_at}
+              createdAt={post.createdAt}
+              updatedAt={post.updatedAt}
             />
           ))}
         </div>

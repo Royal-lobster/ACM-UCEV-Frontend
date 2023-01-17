@@ -13,62 +13,18 @@ export const getStaticProps = async () => {
   const client = new ApolloClient({
     uri: process.env.BACKEND_GRAPHQL_ENDPOINT,
     cache: new InMemoryCache(),
+    headers: {
+      Authorization: process.env.BACKEND_GRAPHQL_AUTHORIZATION_KEY,
+    },
   });
 
-  const { data } = await client.query({
+  const { data, error } = await client.query({
     query: gql`
       {
-        homepageAlbum{
-          data{
-            attributes{
-               photos{
-                  data{
-                    attributes{
-                      url
-                      }
-                   }
-                }
-             }
-          }
-        }
-        posts(sort: "createdAt:desc") {
-    data {
-      id
-    }
-    data {
-      attributes {
-        Title
-      }
-    }
-    data {
-      attributes {
-        Slug
-      }
-    }
-    data {
-      attributes {
-        createdAt
-      }
-    }
-    data {
-      attributes {
-        Description
-      }
-    }
-    data {
-      attributes {
-        authors {
-          data {
-            id
-          }
+        homepageAlbum {
           data {
             attributes {
-              Author_name
-            }
-          }
-          data {
-            attributes {
-              Author_image {
+              photos {
                 data {
                   attributes {
                     url
@@ -77,70 +33,74 @@ export const getStaticProps = async () => {
               }
             }
           }
-          data {
-            attributes {
-              Author_bio
-            }
-          }
         }
-      }
-    }
-    data {
-      attributes {
-        tags {
+        posts(sort: "createdAt:desc", pagination: { pageSize: 5, page: 0 }) {
           data {
             id
-          }
-          data {
             attributes {
-              Tag_name
+              Title
+              Slug
+              createdAt
+              updatedAt
+              Description
+              authors {
+                data {
+                  id
+                  attributes {
+                    Author_name
+                    Author_image {
+                      data {
+                        attributes {
+                          url
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              tags {
+                data {
+                  attributes {
+                    Tag_name
+                  }
+                }
+              }
+              Cover_image {
+                data {
+                  attributes {
+                    url
+                  }
+                }
+              }
+              Mini_description
             }
           }
         }
-      }
-    }
-    data {
-      attributes {
-        Cover_image {
-          data {
-            attributes {
-              url
-            }
-          }
-        }
-      }
-    }
-    data {
-      attributes {
-        Mini_description
-      }
-    }
-  }
+
         events(sort: "Start_time:asc") {
-    data {
-      attributes {
-        Event_name
-      }
-    }
-    data {
-      attributes {
-        Start_time
-      }
-    }
-    data {
-      attributes {
-        Slug
-      }
-    }
-    data {
-      attributes {
-        End_time
-      }
-    }
-  }
+          data {
+            id
+            attributes {
+              createdAt
+              Event_name
+              Start_time
+              End_time
+              Mini_description
+              event_tags {
+                data {
+                  attributes {
+                    Tag_name
+                  }
+                }
+              }
+              Slug
+            }
+          }
+        }
       }
     `,
   });
+
   return {
     props: {
       eventsOverview: data.events,
@@ -161,7 +121,7 @@ function Home({
       <Layout APPLICATION_URL={APPLICATION_URL}>
         <Hero />
         <div className="home__container">
-          <AboutChapter photos={homepageAlbum} />
+          <AboutChapter photos={homepageAlbum.data.attributes.photos.data} />
           <div className="home__about">
             <AboutACM />
             <AboutJNTUV />
@@ -175,11 +135,11 @@ function Home({
               loading="lazy"
             />
           </div>
-          {eventsOverview.filter(
+          {eventsOverview.data.filter(
             (event) => Date.now() < new Date(event.Start_time)
           ).length != 0 && <UpcommingEvents events={eventsOverview} />}
           <SubscribeNewsLetter />
-          <LatestBlogPosts data={postsOverview} />
+          <LatestBlogPosts data={postsOverview.data} />
         </div>
       </Layout>
       <style jsx>{`
