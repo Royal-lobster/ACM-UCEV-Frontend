@@ -13,8 +13,8 @@ function PostResultCardSmall({
   content,
   authors,
   post_tags,
-  created_at,
-  updated_at,
+  createdAt,
+  updatedAt,
 }) {
   const router = useRouter();
   return (
@@ -63,14 +63,14 @@ function PostResultCardSmall({
             ))}
           </div>
           <div className="postResultCardSmall_dateContainer">
-            {created_at == updated_at ? (
+            {createdAt == updatedAt ? (
               <span className="postResultCardSmall_date">
-                {format(new Date(created_at), "MMM dd, yyyy")}
+                {format(new Date(createdAt), "MMM dd, yyyy")}
               </span>
             ) : (
               <span className="postResultCardSmall_date">
                 {" "}
-                Updated {format(new Date(updated_at), "MMM dd, yyyy")}
+                Updated {format(new Date(updatedAt), "MMM dd, yyyy")}
               </span>
             )}{" "}
             · ~{readingTime(content)} min read

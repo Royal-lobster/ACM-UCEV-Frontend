@@ -20,8 +20,8 @@ function LatestBlogPosts({ data }) {
               mini_description={post.attributes.Mini_description}
               authors={post.attributes.authors}
               post_tags={post.attributes.tags}
-              created_at={post.attributes.createdAt}
-              updated_at={post.attributes.updatedAt}
+              createdAt={post.attributes.createdAt}
+              updatedAt={post.attributes.updatedAt}
             />
           ))}
         </div>

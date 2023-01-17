@@ -11,6 +11,7 @@ import { useRouter } from "next/router";
 import ReactUtterences from "react-utterances";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { Prism } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import { transformToOldData } from "../../utils/transformData";
 
 const CodeBlock = {
   code({ node, inline, className, children, ...props }) {
@@ -37,16 +38,24 @@ export const getStaticPaths = async () => {
   const client = new ApolloClient({
     uri: process.env.BACKEND_GRAPHQL_ENDPOINT,
     cache: new InMemoryCache(),
+    headers: {
+      Authorization: process.env.BACKEND_GRAPHQL_AUTHORIZATION_KEY,
+    },
   });
-  const { data } = await client.query({
+  let { data } = await client.query({
     query: gql`
       {
         posts {
-          Slug
+          data {
+            attributes {
+              Slug
+            }
+          }
         }
       }
     `,
   });
+  data = transformToOldData(data);
 
   const paths = data.posts.map((post) => ({
     params: { slug: post.Slug },
@@ -62,37 +71,62 @@ export const getStaticProps = async ({ params }) => {
   const client = new ApolloClient({
     uri: process.env.BACKEND_GRAPHQL_ENDPOINT,
     cache: new InMemoryCache(),
+    headers: {
+      Authorization: process.env.BACKEND_GRAPHQL_AUTHORIZATION_KEY,
+    },
   });
 
-  const { data } = await client.query({
+  let { data } = await client.query({
     query: gql`
-      {
-        posts(where: { Slug: "${params.slug}" }) {
+    {
+      posts(filters: { Slug: { eq: "${params.slug}" } }) {
+        data {
           id
-          Title
-          Slug
-          created_at
-          updated_at
-          Description
-          authors {
-            id
-            Author_name
-            Author_image {
-              url
+          attributes {
+            Title
+            Slug
+            createdAt
+            updatedAt
+            Description
+            authors {
+              data {
+                id
+                attributes {
+                  Author_name
+                  Author_image {
+                    data {
+                      attributes {
+                        url
+                      }
+                    }
+                  }
+                }
+              }
             }
+            tags {
+              data {
+                id
+                attributes {
+                  Tag_name
+                }
+              }
+            }
+            Cover_image {
+              data {
+                attributes {
+                  url
+                }
+              }
+            }
+            Mini_description
           }
-          tags {
-            id
-            Tag_name
-          }
-          Cover_image {
-            url
-          }
-          Mini_description
         }
       }
+    }
+    
     `,
   });
+  data = transformToOldData(data);
   return {
     props: {
       data: data.posts[0],
@@ -139,14 +173,14 @@ function BlogPost({ data, APPLICATION_URL }) {
                 </div>
               ))}
             </div>
-            {data.created_at == data.updated_at ? (
+            {data.createdAt == data.updatedAt ? (
               <span className="blogPost_date">
-                {format(new Date(data.created_at), "MMM dd, yyyy")}
+                {format(new Date(data.createdAt), "MMM dd, yyyy")}
               </span>
             ) : (
               <span className="blogPost_date">
                 {" "}
-                Updated {format(new Date(data.updated_at), "MMM dd, yyyy")}
+                Updated {format(new Date(data.updatedAt), "MMM dd, yyyy")}
               </span>
             )}
             <Chip
