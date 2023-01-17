@@ -17,7 +17,6 @@ function PostResultCardSmall({
   updated_at,
 }) {
   const router = useRouter();
-  console.log({ cover_image });
   return (
     <>
       <div className="postResultCardSmall">

@@ -364,7 +364,7 @@ export default function handler(req, res) {
       // ADD PARTICIPANT TO GOOGLE SHEETS (COUNT is 0 initially)
       addParticipantsToSheet(0);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       // SEND RESPONSE TO THE CLIENT
       res.status(500).send({
         status: "error",

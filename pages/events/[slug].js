@@ -14,6 +14,7 @@ import animationData from "../../public/lottie-files/registration-success.json";
 import { Dialog } from "primereact/dialog";
 import { Toast } from "primereact/toast";
 import RegistrationScreen from "../../components/singleEventPage/RegistrationScreen";
+import { transformToOldData } from "../../utils/transformData";
 
 const CodeBlock = {
   code({ node, inline, className, children, ...props }) {
@@ -35,58 +36,89 @@ const CodeBlock = {
     );
   },
 };
+
 export const getStaticPaths = async () => {
   const client = new ApolloClient({
     uri: process.env.BACKEND_GRAPHQL_ENDPOINT,
     cache: new InMemoryCache(),
+    headers: {
+      Authorization: process.env.BACKEND_GRAPHQL_AUTHORIZATION_KEY,
+    },
   });
-  const { data } = await client.query({
+  let { data } = await client.query({
     query: gql`
       {
         events {
-          Slug
+          data {
+            attributes {
+              Slug
+            }
+          }
         }
       }
     `,
   });
 
-  const paths = data.events.map((event) => ({
-    params: { slug: event.Slug },
-  }));
+  data = transformToOldData(data);
+
+  const paths = data.events
+    .map((event) => ({
+      params: { slug: event.Slug },
+    }))
+    .filter((e) => Boolean(e.params.slug));
 
   return {
     paths,
     fallback: false,
   };
 };
+
 export const getStaticProps = async ({ params }) => {
   const client = new ApolloClient({
     uri: process.env.BACKEND_GRAPHQL_ENDPOINT,
     cache: new InMemoryCache(),
+    headers: {
+      Authorization: process.env.BACKEND_GRAPHQL_AUTHORIZATION_KEY,
+    },
   });
 
-  const { data } = await client.query({
+  let { data } = await client.query({
     query: gql`
       {
-        events(where: { Slug: "${params.slug}" }) {
-          id
-          Event_name
-          Cover_image {
-            url
-          }
-          Mini_description
-          Description
-          Start_time
-          End_time
-          Registration_link
-          Registration_price
-          event_tags {
-            Tag_name
+        events(filters: { Slug: { eq: "${params.slug}" } }) {
+          data {
+            id
+            attributes {
+              Slug
+              Event_name
+              Cover_image {
+                data {
+                  attributes {
+                    url
+                  }
+                }
+              }
+              Mini_description
+              Description
+              Start_time
+              End_time
+              Registration_link
+              Registration_price
+              event_tags {
+                data {
+                  attributes {
+                    Tag_name
+                  }
+                }
+              }
+            }
           }
         }
       }
     `,
   });
+  data = transformToOldData(data);
+
   return {
     props: {
       data: data.events[0],
