@@ -53,7 +53,7 @@ function Footer() {
         </div>
         <div className="footer__topper">
           Copyright ©{new Date().getFullYear()}, JNTUK UCEV ACM Student Chapter.
-          Designed by Srujan
+          Designed by Srujan and Yaswanth
         </div>
       </div>
       <style jsx global>{`
